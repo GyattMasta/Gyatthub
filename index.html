@@ -154,6 +154,11 @@
                 updateCountdown();
             } else {
                 alert("Incorrect passcode. Please try again.");
+                document.getElementById("content").style.display = "block";
+            document.getElementById("myTopnav").style.display = "block";
+            localStorage.setItem("passcodeEntered", "true");
+            document.getElementById("passcode-form").style.display = "none";
+            localStorage.removeItem("attempts");
             }
         }
     }
