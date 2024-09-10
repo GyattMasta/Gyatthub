@@ -77,91 +77,11 @@
 <script>
     document.getElementById("myTopnav").style.display = "none";
 
-    var passcodeEntered = localStorage.getItem("passcodeEntered");
-    if (passcodeEntered === "true") {
-        document.getElementById("content").style.display = "block";
-        document.getElementById("myTopnav").style.display = "block";
-        document.getElementById("passcode-form").style.display = "none";
-    }
-
-    function hEncode(str) {
-        let hStr = '';
-        for (let i = 0; i < str.length; i++) {
-            hStr += str.charCodeAt(i).toString(16);
-        }
-        return hStr;
-    }
-
-    function eEF(str) {
-        let result = '';
-        for (let i = 4; i < str.length; i += 5) {
-            result += str[i];
-        }
-        return result;
-    }
-
-    async function authenticate() {
-        const maxAttempts = 3;
-        const lockoutDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-        const passcode = document.getElementById("passcode").value;
-        const encodedPasscode = btoa(hEncode(passcode));
-
-        let attempts = parseInt(localStorage.getItem("attempts") || "0");
-        let lockoutTime = parseInt(localStorage.getItem("lockoutTime") || "0");
-
-        function updateCountdown() {
-            const now = Date.now();
-            const timeLeft = lockoutTime - now;
-            if (timeLeft > 0) {
-                const minutes = Math.floor(timeLeft / 60000);
-                const seconds = Math.floor((timeLeft % 60000) / 1000);
-                document.getElementById("countdown-timer").textContent = `${minutes} minute(s) and ${seconds} second(s)`;
-                setTimeout(updateCountdown, 1000);
-            } else {
-                document.getElementById("lockout-message").style.display = "none";
-                localStorage.removeItem("lockoutTime");
-                localStorage.removeItem("attempts");
-            }
-        }
-
-        if (Date.now() < lockoutTime) {
-            document.getElementById("lockout-message").style.display = "block";
-            updateCountdown();
-            return;
-        } else {
-            document.getElementById("lockout-message").style.display = "none";
-            localStorage.removeItem("lockoutTime");
-        }
-
-        let response = await fetch('https://raw.githubusercontent.com/MCRed2024/urlfetcher/main/fetcher.txt');
-        let fullResponse = await response.text();
-        let encodedPassword = eEF(eEF(fullResponse));
-
-        if (encodedPasscode === encodedPassword.trim()) {
-            document.getElementById("content").style.display = "block";
+   document.getElementById("content").style.display = "block";
             document.getElementById("myTopnav").style.display = "block";
             localStorage.setItem("passcodeEntered", "true");
             document.getElementById("passcode-form").style.display = "none";
             localStorage.removeItem("attempts");
-        } else {
-            attempts++;
-            localStorage.setItem("attempts", attempts);
-            if (attempts >= maxAttempts) {
-                lockoutTime = Date.now() + lockoutDuration;
-                localStorage.setItem("lockoutTime", lockoutTime);
-                document.getElementById("lockout-message").style.display = "block";
-                updateCountdown();
-            } else {
-                alert("Incorrect passcode. Please try again.");
-                document.getElementById("content").style.display = "block";
-            document.getElementById("myTopnav").style.display = "block";
-            localStorage.setItem("passcodeEntered", "true");
-            document.getElementById("passcode-form").style.display = "none";
-            localStorage.removeItem("attempts");
-            }
-        }
-    }
 
     window.addEventListener('storage', function(event) {
         if (event.key === "passcodeEntered" && event.newValue === "true") {
